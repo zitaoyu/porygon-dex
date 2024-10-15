@@ -17,6 +17,15 @@ export function extractIdFromUrl(url: string): number {
   return /^\d+$/.test(lastPart) ? parseInt(lastPart, 10) : -1;
 }
 
+export function extractResourceAndId(url: string): [string, string] {
+  const match = url.match(/\/(\w+)\/(\d+)\//);
+  if (match) {
+    const [, resource, id] = match;
+    return [resource, id];
+  }
+  return ["ability", "1"];
+}
+
 export function isNumber(s: string): boolean {
   return /^\d+$/.test(s);
 }

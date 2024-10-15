@@ -10,6 +10,7 @@ import {
   DataLink,
   PokemonFullData,
 } from "@/app/_services/models/PokemonFullData";
+import { useDetailPanelContext } from "./DetailPanelContext";
 
 type BasicInfoBoxItemProps = {
   title: string;
@@ -22,6 +23,7 @@ const BasicInfoBoxItem = ({
   items,
   isVerticle = false,
 }: BasicInfoBoxItemProps) => {
+  const { setDetailPanelUrl, counter, setCounter } = useDetailPanelContext();
   return (
     <div className={`w-full items-center p-1`}>
       <div className={`font-medium ${isVerticle && "text-center"}`}>
@@ -36,9 +38,16 @@ const BasicInfoBoxItem = ({
           item.url === null ? (
             <span key={item.value}>{item.value}</span>
           ) : (
-            <Link key={item.value} className="hover:underline" href={item.url}>
+            <span
+              key={item.value}
+              className="hover:underline"
+              onClick={() => {
+                setDetailPanelUrl(item.url as string);
+                setCounter(counter + 1);
+              }}
+            >
               {item.value}
-            </Link>
+            </span>
           ),
         )}
       </div>

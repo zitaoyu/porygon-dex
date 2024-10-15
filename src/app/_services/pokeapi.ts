@@ -10,7 +10,13 @@ import { EvolutionChain } from "./models/EvolutionChain";
 import pokemonSimpleDataDatabase from "./databases/pokemonSimpleDataDatabase";
 import evolutionChainDatabase from "./databases/evolutionChainDatabase";
 import { statNameMap } from "../_utils/stats";
-import { extractIdFromUrl, formatName } from "../_utils/format";
+import {
+  extractIdFromUrl,
+  extractResourceAndId,
+  formatName,
+} from "../_utils/format";
+import { DetailPanelData, DetailType } from "./models/DetailPanelData";
+import { Albert_Sans } from "next/font/google";
 
 class PokeApiWrapper implements PokeApiWrapperInterface {
   private pokedex: Pokedex;
@@ -26,6 +32,7 @@ class PokeApiWrapper implements PokeApiWrapperInterface {
 
     this.pokemonSimpleDataDatabase = pokemonSimpleDataDatabase;
   }
+
   getPokemonSimpleDataById(id: number): PokemonSimpleData {
     return (
       this.pokemonSimpleDataDatabase.find((item) => item.pokeapiId == id) ||
@@ -155,6 +162,39 @@ class PokeApiWrapper implements PokeApiWrapperInterface {
     };
 
     return pokemonFullData;
+  }
+
+  async getDetailPanelDataByUrl(url: string): Promise<DetailPanelData> {
+    let [type, id] = extractResourceAndId(url);
+    type = type as DetailType;
+
+    let detailPanelData: DetailPanelData = {
+      type: DetailType.UNKNOWN,
+      friendlyName: "unknown",
+      detail: "unknown item",
+    };
+
+    switch (type) {
+      case DetailType.ABILITY:
+        const ability = await this.pokedex.getAbilityByName(id);
+        detailPanelData.type = DetailType.ABILITY;
+
+        const friendlyName = ability.names.find(
+          (item) => item.language.name == "en",
+        )?.name;
+        if (friendlyName) detailPanelData.friendlyName = friendlyName;
+        
+        const detail = ability.effect_entries.find(
+          (item) => item.language.name == "en",
+        )?.effect;
+        if (detail) detailPanelData.detail = detail;
+      case DetailType.ITEM:
+        break;
+      case DetailType.MOVE:
+        break;
+    }
+
+    return detailPanelData;
   }
 }
 
